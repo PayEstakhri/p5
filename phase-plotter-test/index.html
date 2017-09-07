@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script language="javascript" type="text/javascript" src="../../p5.min.js"></script>
+    <script language="javascript" type="text/javascript" src="../../addons/p5.dom.min.js"></script>
+    <script language="javascript" type="text/javascript" src="../../addons/p5.sound.min.js"></script>
+    <script language="javascript" type="text/javascript" src="../../mathjs-master/dist/math.min.js"></script>
+    <script language="javascript" type="text/javascript" src="../../paperjs-master/dist/paper-full.js"></script>
+    <script language="javascript" type="text/javascript" src="../../snabbtjs-master/snabbt.min.js"></script> 
+    <!--<script language="javascript" type="text/javascript" src="createVectorArray.js"></script>
+    <script language="javascript" type="text/javascript" src="phaseAnimation.js"></script>-->
+    <!--<script language="javascript" type="text/javascript" src="circlePlotter.js"></script>-->
+    <!--<script language="javascript" type="text/javascript" src="sketch.js"></script>-->
+    <link href="http://fonts.googleapis.com/css?family=Source+Code +Pro" rel="stylesheet" type="text/css" href="style.css">
+    <!--<link rel="stylesheet" href="style.css">-->
+    <style> body {padding: 0; margin: 0;} </style>
+  </head>
+  <body>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+      <form>
+        dx/dt=
+          <input type="text" name="xDot" id="xDot" value="" />
+        <p>
+        dy/dt=
+          <input type="text" name="yDot" id="yDot" value="" />
+        <p>
+        Scale=
+          <input type="text" name="scale" id="scale" value="" />
+        <p>
+      </form>
+    <button id="update">Update</button>
+<canvas id="canvas" width="400" height="400"style="border:1px solid #000000;"</canvas>
+
+    <!--<div class='wrapperX'>
+     <form id='xDot'>
+      <div class='get-xDot'>
+        <lable id='nameLableX' for='nameField'>dx/dt=</lable>
+        <input id='nameFieldX' type='text'></input>
+      </div>
+      <div class='xDot-sub'>
+        <button id='subButtonX' type='button'>Submit</button>
+      </div>
+    </form>
+
+    <div>
+      <p id='resultX'></p></div>
+    </div>
+
+    <div class='wrapperY'>
+     <form id='yDot'>
+      <div class='get-yDot'>
+        <lable id='nameLableY' for='nameField'>dy/dt=</lable>
+        <input id='nameFieldY' type='text'></input>
+      </div>
+      <div class='yDot-sub'>
+        <button id='subButtonX' type='button'>Submit</button>
+      </div>
+    </form>
+
+    <div>
+      <p id='resultY'></p></div>
+    </div>-->
+
+    <script type="text/javascript">
+var canvas = document.getElementById("myCanvaas");
+ctx = canvas.getContext("2d");
+
+$('#update').click(function() {
+  x_dot = document.getElementById('xDot').value;
+  y_dot = document.getElementById('yDot').value;
+  scale = document.getElementById('scale').value;
+  update(x_dot, y_dot, scale);
+});
+
+function clearCanvas() {
+  ctx.clearRect(0, 0, W, H);
+}
+
+function createVectorArray(x, y, scale) {
+  var x_init;
+  var y_init;
+  var x1_dot;
+  var x2_dot;
+  var y1_dot;
+  var y2_dot;
+  var x_coord;
+  var y_coord;
+  var x1_func;
+  var x2_func;
+  var y1_func;
+  var y2_func;
+  var x1_val;
+  var x2_val;
+  var y1_val;
+  var y2_val;
+  var index = 0;
+  var coord_matrix = [];
+  var val_matrix = [];
+  var vector_array = [];
+
+  x_init = math.eval("f(x, y) = " + x);
+  y_init = math.eval("f(x, y) = " + y);
+
+  x1_dot = math.string(math.derivative(x, 'x'));  // Computing the Partial Derivatives of our input functions
+  x2_dot = math.string(math.derivative(x, 'y'));
+
+  y1_dot = math.string(math.derivative(y, 'x'));
+  y2_dot = math.string(math.derivative(y, 'y'));
+
+  x1_func = math.eval("f(x, y) = " + x1_dot);
+  x2_func = math.eval("f(x, y) = " + x2_dot);
+
+  y1_func = math.eval("f(x, y) = " + y1_dot);
+  y2_func = math.eval("f(x, y) = " + y2_dot);
+
+  for (var w = width / scale; w < width; w+= width / scale) {       //  Creating an Array of Vectors for each point on our X/Y Plane
+    for (var z = height / scale; z < height; z += height / scale) {
+      if (index < ((scale - 1) * (scale - 1))) {   //  Add checks for nodes
+        x_coord = map(w, width / scale, width - width / scale, (-1) * ((scale / 2) - 1), (scale / 2) - 1);
+        y_coord = map(z, height / scale, height - height / scale, (scale / 2) - 1, (-1) * ((scale / 2) - 1));
+        coord_matrix[index] = [[x_coord], [y_coord]];
+
+        if (Number(x_init(x_coord, y_coord)) == 0 && Number(y_init(x_coord, y_coord)) == 0) {
+          x1_val = 0;
+          x2_val = 0;
+
+          y1_val = 0;
+          y2_val = 0;
+        }
+        else {
+          x1_val = Number(x1_func(x_coord, y_coord));
+          x2_val = Number(x2_func(x_coord, y_coord));
+
+          y1_val = Number(y1_func(x_coord, y_coord));
+          y2_val = Number(y2_func(x_coord, y_coord));
+        }
+        val_matrix[index] = [[x1_val, x2_val], [y1_val, y2_val]];
+        vector_array[index] = math.multiply(val_matrix[index], coord_matrix[index]);
+        index++;
+      }
+      else {
+      }
+    }
+  }
+  return vector_array;
+}
+
+function phaseAnimation(input_vector_array, scale) {
+  var init_coords = [];
+  var angleRad = [];
+  var index_coords = 0;
+  var count = 0;
+  var r = [];
+  var new_x;
+  var new_y;
+  var xy_coord_final = [];
+  var color_line;
+  var color_change;
+  var freq = 0.3;
+  var amp = 127;
+  var center = 128;
+
+  for (var w = width / scale; w < width; w+= width / scale) {        
+    for (var z = height / scale; z < height; z += height / scale) {
+      if (index_coords < ((scale - 1) * (scale - 1))) {
+        init_coords[index_coords] = [[map(w, width / scale, width - width / scale, (-1) * ((scale / 2) - 1), (scale / 2) - 1)], [map(z, height / scale, height - height / scale, (scale / 2) - 1, (-1) * ((scale / 2) -1))]];
+        index_coords++;
+      }
+      else {
+      }
+    }
+  }
+
+  for (var i = 0; i < init_coords.length; i++) {            //  Conversion from Cartesian to Polar Coordinates
+    if (input_vector_array[i][0] == 0) {              //  Cannot divide by zero
+      r[i] = 0;
+      angleRad[i] = 0;
+    }
+    else if (input_vector_array[i][0] < 0 && input_vector_array[i][1] < 0) {        //  Adjusting angleRad to be within bounds of atan
+      if (abs(input_vector_array[i][0]) > abs(input_vector_array[i][1])) {        //  If abs(x) > abs(y)
+        r[i] = sqrt(math.square(10) + math.square((10 * input_vector_array[i][1])/input_vector_array[i][0]));
+      }
+      else if (abs(input_vector_array[i][1]) > abs(input_vector_array[i][0])) {       //  if abs(y) > abs(x)
+        r[i] = sqrt(math.square((10 * input_vector_array[i][0])/input_vector_array[i][1]) + math.square(10));
+      }
+      else {                                        // if abs(x) = abs(y)
+        r[i] = sqrt(math.square(10) + math.square(10));
+      }
+      angleRad[i] = math.atan(input_vector_array[i][1] / input_vector_array[i][0]) - math.PI;
+    }
+    else if (input_vector_array[i][0] < 0 && input_vector_array[i][1] > 0) {
+      if (abs(input_vector_array[i][0]) > abs(input_vector_array[i][1])) {
+        r[i] = sqrt(math.square(10) + math.square((10 * input_vector_array[i][1])/input_vector_array[i][0]));
+      }
+      else if (abs(input_vector_array[i][1]) > abs(input_vector_array[i][0])) {
+        r[i] = sqrt(math.square((10 * input_vector_array[i][0])/input_vector_array[i][1]) + math.square(10));
+      }
+      else {
+        r[i] = sqrt(math.square(10) + math.square(10));
+      }
+      angleRad[i] = math.atan(input_vector_array[i][1] / input_vector_array[i][0]) + math.PI;
+    }
+    else {
+      if (abs(input_vector_array[i][0]) > abs(input_vector_array[i][1])) {
+        r[i] = sqrt(math.square(10) + math.square((10 * input_vector_array[i][1])/input_vector_array[i][0]));
+      }
+      else if (abs(input_vector_array[i][1]) > abs(input_vector_array[i][0])) {
+        r[i] = sqrt(math.square((10 * input_vector_array[i][0])/input_vector_array[i][1]) + math.square(10));
+      }
+      else {
+        r[i] = sqrt(math.square(10) + math.square(10));
+      }
+      angleRad[i] = math.atan(input_vector_array[i][1] / input_vector_array[i][0]);
+    }
+  }
+
+  for (var w = width / scale; w < width; w += width / scale) {         
+    for (var z = height / scale; z < height; z += height / scale) {
+      if (count < (scale - 1) * (scale- 1)) {
+        color_line = map(angleRad[count], -PI, PI, 0, 255);
+        color_change = map(count, 0, (scale - 1) * (scale - 1), 0, 255); 
+        //color_line = sin(freq * count) * amp + center;
+
+        new_x = w + r[count] * math.cos(angleRad[count]);
+        new_y = z + (-1) * r[count] * math.sin(angleRad[count]);
+
+        push();                   //  creating the directional vectors at each point in the coordinate system
+        ctx.beginPath();
+        //strokeWeight(2);
+        //stroke(color_line, color_change, 255 - color_change);
+        ctx.beginpath();
+        ctx.moveTo(w, z);
+        ctx.lineTo(new_x, new_y);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "rgb(color_line, color_change, 255 - color_change)";
+        ctx.stroke();
+        pop();
+
+        xy_coord_final[count] = [[new_x], [new_y]];
+        count++;
+      }
+      else {
+      }
+    }
+  }
+  //return xy_coord_final;
+  return angleRad;
+}
+
+function draw(x_dot, y_dot, scale) {
+  var scale;
+  var vectors = [];
+  var angles = [];
+
+  vectors = createVectorArray(x_dot, y_dot, scale);
+
+  angles = phaseAnimation(vectors, scale);
+
+  ctx.beginPath();
+  ctx.moveTo(width / 2, 0)
+  ctx.lineTo(width / 2, height);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "black";
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(0, height / 2);
+  ctx.lineTo(width, height / 2);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "black)";
+  ctx.stroke();
+
+  for (var i = width / scale; i < width; i += width / scale) {      //  Plotting Every Vertex in our X/Y Plane
+    for (var q = height / scale; q < height; q += height / scale) {  
+      ctx.fillRect(i, q, 1, 1);
+    }
+  }
+}
+
+function update(x_dot, y_dot, scale) {
+  clearCanvas();
+  draw(x_dot, y_dot, scale);
+}
+
+update(x_dot, y_dot, scale);
+
+    </script>
+  </body>
+</html>
