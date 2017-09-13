@@ -1,0 +1,126 @@
+`<!DOCTYPE html>
+<html>
+  <head>
+    <script language="javascript" type="text/javascript" src="../../p5.min.js"></script>
+    <script language="javascript" type="text/javascript" src="../../addons/p5.dom.min.js"></script>
+    <script language="javascript" type="text/javascript" src="../../addons/p5.sound.min.js"></script>
+    <script language="javascript" type="text/javascript" src="../../mathjs-master/dist/math.min.js"></script>
+    <script language="javascript" type="text/javascript" src="../../paperjs-master/dist/paper-full.js"></script>
+    <script language="javascript" type="text/javascript" src="../../snabbtjs-master/snabbt.min.js"></script> 
+    <!--<link href="http://fonts.googleapis.com/css?family=Source+Code +Pro" rel="stylesheet" type="text/css" href="style.css">-->
+    <!--<link rel="stylesheet" href="style.css">-->
+    <style> body {padding: 0; margin: 0;} </style>
+  </head>
+  <body>
+    <script>
+      (() => {
+          // Create Canvas
+          var canvas = document.createElement('canvas');
+          canvas.width = 960;
+          canvas.height = 540;
+          document.body.appendChild(canvas);
+          var ctx = canvas.getContext('2d');
+
+          function evalComplex(x, y) {
+            var z = math.complex(x, y); 
+            var func = math.eval("f(z) = z^2");
+            var conj = 1;
+            var ans = func(z);
+
+            var tempX = ans.re;
+            var tempY = ans.im * conj;
+
+            var result = [tempX, tempY];
+
+            return result;
+          }
+
+          // Start drawing
+          function belongsToSet(x,y) {
+            let real = x;
+            let imag = y;
+            // Set max number of iterations
+            var maxIterations = 30;
+            for (let i = 0; i < maxIterations; i++) {
+              var tempR = real * real - imag * imag + x;    // Squared
+              var tempI = 2.0 * real * imag + y;
+
+              //var tempR = real * real - imag * imag + x;    // Squared Conjugate
+              //var tempI = -2.0 * real * imag + y;
+
+              //var tempR = real * real * real - 3.0 * real * imag * imag + x;  // Cubed
+              //var tempI = 3.0 * real * real * imag - imag * imag * imag + y;
+
+              //var ans = evalComplex(real, imag);
+              real = tempR;
+              imag = tempI;
+
+              //real = ans[0] + x;
+              //imag = ans[1] + y;
+              // Return a number as a percentage
+              if (real * imag > 5) {
+               return (i / maxIterations * 50);
+              }
+            }
+            // Return zero if in set
+            return 0;
+          }
+
+          /*function scroll(scrollByX,scrollByY){
+            offsetX+=scrollByX;
+            offsetY+=scrollByY;
+            if (offsetX < 0 || offsetX > cw - textWidth) {
+              directionX *= -1;
+              offsetX += directionX;
+            }
+            ctx.drawImage(tempCanvas,offsetX,offsetY);
+          }
+
+          var lastTime;
+          function animate(time){
+
+            // timer stuff
+            requestAnimationFrame(animate);
+            if (!lastTime) {
+              lastTime = time;
+            }
+            if (time - lastTime < 20) {
+              return;
+            }
+            lastTime = time;
+
+            // clear canvas and redraw with scroll
+            ctx.clearRect(0, 0, cw, ch);
+            scroll(directionX,0);
+          }*/
+
+          var magFactor = 200; // Good Squared / Squared-Conjugate Settings
+          var panX = 2.5;
+          var panY = 1.25;
+
+          /*var magFactor = 1000; // Good Cubed Settings
+          var panX = 0.5;
+          var panY = -0.5;*/
+
+          for (let x = 0; x < canvas.width; x++) {
+            for (let y = 0; y < canvas.height; y++) {
+              var inSet = belongsToSet(x / magFactor - panX, y / magFactor - panY);
+              if (inSet === 0) {
+                ctx.fillStyle = '#000';
+                // Draw a black pixel
+                ctx.fillRect(x, y, 1,1);
+              }
+              else {
+                ctx.fillStyle = `hsl(0, 100%, ${inSet}%)`;
+                // Draw a colorful pixel
+                ctx.fillRect(x, y, 1,1);
+              }
+            }
+          }
+          //takeCanvasSnapshot();
+
+          //animate();
+      })();
+    </script>
+  </body>
+</html>
