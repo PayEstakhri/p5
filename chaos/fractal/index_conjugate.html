@@ -39,24 +39,28 @@
           function belongsToSet(x,y) {
             let real = x;
             let imag = y;
+            var func = math.eval("f(z) = z^2");
             // Set max number of iterations
             var maxIterations = 30;
             for (let i = 0; i < maxIterations; i++) {
               //var tempR = real * real - imag * imag + x;    // Squared
               //var tempI = 2.0 * real * imag + y;
 
-              var tempR = real * real - imag * imag + x;    // Squared Conjugate
-              var tempI = -2.0 * real * imag + y;
+              //var tempR = real * real - imag * imag + x;    // Squared Conjugate
+              //var tempI = -2.0 * real * imag + y;
 
               //var tempR = real * real * real - 3.0 * real * imag * imag + x;  // Cubed
               //var tempI = 3.0 * real * real * imag - imag * imag * imag + y;
 
               //var ans = evalComplex(real, imag);
-              real = tempR;
-              imag = tempI;
+              //real = tempR;
+              //imag = tempI;
 
-              //real = ans[0] + x;
-              //imag = ans[1] + y;
+              var z = math.complex(real, imag);
+              var ans = func(z);
+
+              real = ans.re + x;
+              imag = ans.im*-1 + y;
               // Return a number as a percentage
               if (real * imag > 5) {
                return (i / maxIterations * 50);
@@ -65,7 +69,7 @@
             // Return zero if in set
             return 0;
           }
-
+          
           /*function scroll(scrollByX,scrollByY){
             offsetX+=scrollByX;
             offsetY+=scrollByY;
